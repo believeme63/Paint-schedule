@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Paint Schedule</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #F5F0E8;
+    --warm-white: #FDFAF5;
+    --charcoal: #2C2C2C;
+    --mid: #6B6458;
+    --light: #C8BFB0;
+    --accent: #8B6F47;
+    --accent-light: #C4A882;
+    --danger: #B85C4A;
+    --success: #4A7C59;
+    --border: #DDD6CA;
+    --shadow: rgba(44,44,44,0.10);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--charcoal);
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--charcoal);
+    color: var(--cream);
+    padding: 28px 48px;
+    display: flex;
+    align-items: baseline;
+    gap: 18px;
+    border-bottom: 4px solid var(--accent);
+  }
+  header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+  header span {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--light);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  /* ── LAYOUT ── */
+  .container { max-width: 1200px; margin: 0 auto; padding: 40px 32px; }
+
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+  }
+
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--mid);
+  }
+
+  /* ── BUTTONS ── */
+  .btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    letter-spacing: 0.02em;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: var(--warm-white);
+  }
+  .btn-primary:hover { background: #7a6040; transform: translateY(-1px); }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--accent);
+    border: 1.5px solid var(--accent);
+  }
+  .btn-outline:hover { background: var(--accent); color: var(--warm-white); }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--mid);
+    border: 1.5px solid var(--border);
+    font-size: 0.78rem;
+    padding: 7px 14px;
+  }
+  .btn-ghost:hover { border-color: var(--charcoal); color: var(--charcoal); }
+
+  .btn-danger {
+    background: transparent;
+    color: var(--danger);
+    border: 1.5px solid var(--danger);
+    font-size: 0.78rem;
+    padding: 7px 14px;
+  }
+  .btn-danger:hover { background: var(--danger); color: white; }
+
+  .btn-success {
+    background: var(--success);
+    color: white;
+  }
+  .btn-success:hover { background: #3d6b4a; }
+
+  /* ── PROJECT CARDS ── */
+  .projects-list { display: flex; flex-direction: column; gap: 24px; }
+
+  .project-card {
+    background: var(--warm-white);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px var(--shadow);
+    transition: box-shadow 0.2s;
+  }
+  .project-card:hover { box-shadow: 0 4px 24px var(--shadow); }
+
+  .project-header {
+    background: var(--charcoal);
+    color: var(--cream);
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .project-header-left { display: flex; align-items: center; gap: 14px; }
+  .project-toggle {
+    background: none; border: none; color: var(--light);
+    font-size: 1.1rem; cursor: pointer; padding: 0 4px;
+    transition: transform 0.2s;
+    font-family: 'DM Mono', monospace;
+    line-height: 1;
+  }
+  .project-toggle.open { transform: rotate(90deg); }
+  .project-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--cream);
+  }
+  .project-meta {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--light);
+    letter-spacing: 0.1em;
+  }
+  .project-actions { display: flex; gap: 8px; }
+  .project-actions button {
+    background: none; border: 1px solid rgba(255,255,255,0.25);
+    color: var(--light); border-radius: 3px;
+    font-size: 0.72rem; padding: 5px 10px; cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.15s;
+  }
+  .project-actions button:hover { background: rgba(255,255,255,0.12); color: white; }
+  .project-actions button.del:hover { background: var(--danger); border-color: var(--danger); color: white; }
+
+  .project-body {
+    display: none;
+    padding: 0 0 16px 0;
+  }
+  .project-body.open { display: block; }
+
+  /* ── TABLE ── */
+  .table-wrap { overflow-x: auto; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+  }
+  thead tr {
+    background: var(--cream);
+    border-bottom: 2px solid var(--border);
+  }
+  thead th {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--mid);
+    padding: 12px 16px;
+    text-align: left;
+    white-space: nowrap;
+  }
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.12s;
+  }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: #FAF6EE; }
+  td { padding: 13px 16px; color: var(--charcoal); vertical-align: middle; }
+
+  .color-chip {
+    display: inline-block;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    vertical-align: middle;
+    margin-right: 8px;
+    flex-shrink: 0;
+  }
+  .color-cell { display: flex; align-items: center; }
+
+  .finish-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-family: 'DM Mono', monospace;
+    background: var(--cream);
+    color: var(--mid);
+    border: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  .td-actions { display: flex; gap: 6px; }
+
+  .add-room-row {
+    padding: 12px 24px;
+    border-top: 1px dashed var(--border);
+    background: #FEFCF8;
+  }
+
+  .empty-state {
+    padding: 32px 24px;
+    text-align: center;
+    color: var(--light);
+    font-style: italic;
+    font-size: 0.9rem;
+  }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(30,26,20,0.55);
+    backdrop-filter: blur(3px);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay.active { display: flex; }
+
+  .modal {
+    background: var(--warm-white);
+    border-radius: 10px;
+    width: 540px;
+    max-width: 95vw;
+    max-height: 92vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    animation: slideUp 0.22s ease;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+  }
+
+  .modal-header {
+    background: var(--charcoal);
+    color: var(--cream);
+    padding: 20px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 10px 10px 0 0;
+  }
+  .modal-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+  }
+  .modal-close {
+    background: none; border: none; color: var(--light);
+    font-size: 1.4rem; cursor: pointer; line-height: 1; padding: 0 4px;
+    transition: color 0.15s;
+  }
+  .modal-close:hover { color: white; }
+
+  .modal-body { padding: 28px; }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .form-row.single { grid-template-columns: 1fr; }
+
+  .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 18px; }
+  .field label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--mid);
+  }
+  .field input, .field select {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    padding: 10px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 5px;
+    background: var(--cream);
+    color: var(--charcoal);
+    transition: border-color 0.15s;
+    outline: none;
+  }
+  .field input:focus, .field select:focus { border-color: var(--accent); }
+
+  .field-color { display: flex; gap: 8px; align-items: center; }
+  .field-color input[type="text"] { flex: 1; }
+  .field-color input[type="color"] {
+    width: 42px; height: 42px; padding: 2px;
+    border: 1.5px solid var(--border); border-radius: 5px; cursor: pointer;
+    background: var(--cream);
+  }
+
+  .modal-footer {
+    padding: 0 28px 24px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+
+  /* ── PRINT ── */
+  .print-bar {
+    display: flex; justify-content: flex-end; gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  @media print {
+    header, .top-bar, .print-bar, .project-actions,
+    .add-room-row, .td-actions, .project-toggle { display: none !important; }
+    .project-body { display: block !important; }
+    .project-card { box-shadow: none; border: 1px solid #ccc; margin-bottom: 20px; }
+    body { background: white; }
+  }
+
+  /* ── EMPTY PAGE ── */
+  .no-projects {
+    text-align: center;
+    padding: 80px 32px;
+    color: var(--mid);
+  }
+  .no-projects h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    margin-bottom: 12px;
+    color: var(--charcoal);
+  }
+  .no-projects p { font-size: 0.95rem; margin-bottom: 28px; }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed; bottom: 28px; right: 28px;
+    background: var(--charcoal); color: var(--cream);
+    padding: 12px 22px; border-radius: 6px;
+    font-size: 0.85rem; font-family: 'DM Sans', sans-serif;
+    opacity: 0; transform: translateY(10px);
+    transition: all 0.25s; pointer-events: none;
+    border-left: 3px solid var(--accent);
+    z-index: 200;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Paint Schedule</h1>
+  <span>Project Color Reference</span>
+</header>
+
+<div class="container">
+  <div class="top-bar">
+    <span class="section-label">All Projects</span>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-ghost" onclick="window.print()">⊡ Print / Export PDF</button>
+      <button class="btn btn-primary" onclick="openProjectModal()">+ New Project</button>
+    </div>
+  </div>
+
+  <div id="projects-container"></div>
+</div>
+
+<!-- PROJECT MODAL -->
+<div class="modal-overlay" id="projectModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="projectModalTitle">New Project</span>
+      <button class="modal-close" onclick="closeModal('projectModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row single">
+        <div class="field">
+          <label>Project Name</label>
+          <input type="text" id="pName" placeholder="e.g. Johnson Residence">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label>Year</label>
+          <input type="number" id="pYear" placeholder="2025" min="2000" max="2099">
+        </div>
+        <div class="field">
+          <label>Client / Notes (optional)</label>
+          <input type="text" id="pNotes" placeholder="e.g. Renovation Phase 1">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('projectModal')">Cancel</button>
+      <button class="btn btn-success" onclick="saveProject()">Save Project</button>
+    </div>
+  </div>
+</div>
+
+<!-- ROOM MODAL -->
+<div class="modal-overlay" id="roomModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="roomModalTitle">Add Room / Area</span>
+      <button class="modal-close" onclick="closeModal('roomModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row single">
+        <div class="field">
+          <label>Room / Area Name</label>
+          <input type="text" id="rRoom" placeholder="e.g. Master Bedroom, Kitchen Accent Wall">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label>Paint Color Name</label>
+          <div class="field-color">
+            <input type="text" id="rColor" placeholder="e.g. Antique White">
+            <input type="color" id="rColorHex" value="#F5F0E8" title="Pick a color for visual reference">
+          </div>
+        </div>
+        <div class="field">
+          <label>Paint Number / Code</label>
+          <input type="text" id="rNumber" placeholder="e.g. SW 7012">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label>Paint Brand</label>
+          <input type="text" id="rBrand" placeholder="e.g. Sherwin-Williams">
+        </div>
+        <div class="field">
+          <label>Finish</label>
+          <select id="rFinish">
+            <option value="">— Select Finish —</option>
+            <option>Flat</option>
+            <option>Matte</option>
+            <option>Eggshell</option>
+            <option>Satin</option>
+            <option>Semi-Gloss</option>
+            <option>Gloss</option>
+            <option>High-Gloss</option>
+            <option>Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row single">
+        <div class="field">
+          <label>Year</label>
+          <input type="number" id="rYear" placeholder="2025" min="2000" max="2099">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('roomModal')">Cancel</button>
+      <button class="btn btn-success" onclick="saveRoom()">Save Entry</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+  // ── DATA ──────────────────────────────────────────────────────────────
+  let data = JSON.parse(localStorage.getItem('paintSchedule') || '{"projects":[]}');
+  let editingProjectId = null;
+  let editingRoomId = null;
+  let activeProjectId = null; // for room modal
+
+  function save() {
+    localStorage.setItem('paintSchedule', JSON.stringify(data));
+  }
+
+  function uid() {
+    return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  }
+
+  // ── TOAST ─────────────────────────────────────────────────────────────
+  function toast(msg) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 2200);
+  }
+
+  // ── RENDER ────────────────────────────────────────────────────────────
+  function render() {
+    const container = document.getElementById('projects-container');
+
+    if (!data.projects.length) {
+      container.innerHTML = `
+        <div class="no-projects">
+          <h2>No projects yet</h2>
+          <p>Create your first project to start tracking paint schedules.</p>
+          <button class="btn btn-primary" onclick="openProjectModal()">+ New Project</button>
+        </div>`;
+      return;
+    }
+
+    container.innerHTML = '';
+    data.projects.forEach(proj => {
+      const rooms = proj.rooms || [];
+      const card = document.createElement('div');
+      card.className = 'project-card';
+      card.id = 'proj-' + proj.id;
+
+      const isOpen = proj._open !== false;
+
+      card.innerHTML = `
+        <div class="project-header">
+          <div class="project-header-left">
+            <button class="project-toggle ${isOpen ? 'open' : ''}"
+              onclick="toggleProject('${proj.id}')">▶</button>
+            <div>
+              <div class="project-name">${esc(proj.name)}</div>
+              <div class="project-meta">${esc(proj.year || '')}${proj.notes ? ' · ' + esc(proj.notes) : ''} · ${rooms.length} room${rooms.length !== 1 ? 's' : ''}</div>
+            </div>
+          </div>
+          <div class="project-actions">
+            <button onclick="openProjectModal('${proj.id}')">Edit</button>
+            <button class="del" onclick="deleteProject('${proj.id}')">Delete</button>
+          </div>
+        </div>
+        <div class="project-body ${isOpen ? 'open' : ''}">
+          ${rooms.length === 0
+            ? '<div class="empty-state">No rooms added yet. Add your first room below.</div>'
+            : `<div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Room / Area</th>
+                      <th>Paint Color</th>
+                      <th>Paint Number</th>
+                      <th>Brand</th>
+                      <th>Finish</th>
+                      <th>Year</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${rooms.map(r => `
+                      <tr>
+                        <td><strong>${esc(r.room)}</strong></td>
+                        <td>
+                          <div class="color-cell">
+                            <span class="color-chip" style="background:${esc(r.colorHex || '#ccc')}"></span>
+                            ${esc(r.color)}
+                          </div>
+                        </td>
+                        <td><span style="font-family:'DM Mono',monospace;font-size:0.82rem;">${esc(r.number)}</span></td>
+                        <td>${esc(r.brand)}</td>
+                        <td><span class="finish-badge">${esc(r.finish)}</span></td>
+                        <td>${esc(r.year || '')}</td>
+                        <td>
+                          <div class="td-actions">
+                            <button class="btn btn-ghost" onclick="openRoomModal('${proj.id}','${r.id}')">Edit</button>
+                            <button class="btn btn-danger" onclick="deleteRoom('${proj.id}','${r.id}')">×</button>
+                          </div>
+                        </td>
+                      </tr>`).join('')}
+                  </tbody>
+                </table>
+              </div>`}
+          <div class="add-room-row">
+            <button class="btn btn-outline" onclick="openRoomModal('${proj.id}')">+ Add Room / Area</button>
+          </div>
+        </div>`;
+
+      container.appendChild(card);
+    });
+  }
+
+  function esc(str) {
+    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // ── TOGGLE ────────────────────────────────────────────────────────────
+  function toggleProject(id) {
+    const proj = data.projects.find(p => p.id === id);
+    if (!proj) return;
+    proj._open = !proj._open;
+    save();
+    render();
+  }
+
+  // ── PROJECT MODAL ────────────────────────────────────────────────────
+  function openProjectModal(id) {
+    editingProjectId = id || null;
+    document.getElementById('projectModalTitle').textContent = id ? 'Edit Project' : 'New Project';
+    if (id) {
+      const proj = data.projects.find(p => p.id === id);
+      document.getElementById('pName').value = proj.name || '';
+      document.getElementById('pYear').value = proj.year || '';
+      document.getElementById('pNotes').value = proj.notes || '';
+    } else {
+      document.getElementById('pName').value = '';
+      document.getElementById('pYear').value = new Date().getFullYear();
+      document.getElementById('pNotes').value = '';
+    }
+    document.getElementById('projectModal').classList.add('active');
+    setTimeout(() => document.getElementById('pName').focus(), 100);
+  }
+
+  function saveProject() {
+    const name = document.getElementById('pName').value.trim();
+    if (!name) { alert('Project name is required.'); return; }
+    const year = document.getElementById('pYear').value;
+    const notes = document.getElementById('pNotes').value.trim();
+
+    if (editingProjectId) {
+      const proj = data.projects.find(p => p.id === editingProjectId);
+      proj.name = name; proj.year = year; proj.notes = notes;
+      toast('Project updated.');
+    } else {
+      data.projects.push({ id: uid(), name, year, notes, rooms: [], _open: true });
+      toast('Project created.');
+    }
+    save(); render();
+    closeModal('projectModal');
+  }
+
+  function deleteProject(id) {
+    if (!confirm('Delete this project and all its rooms?')) return;
+    data.projects = data.projects.filter(p => p.id !== id);
+    save(); render();
+    toast('Project deleted.');
+  }
+
+  // ── ROOM MODAL ────────────────────────────────────────────────────────
+  function openRoomModal(projectId, roomId) {
+    activeProjectId = projectId;
+    editingRoomId = roomId || null;
+    document.getElementById('roomModalTitle').textContent = roomId ? 'Edit Room Entry' : 'Add Room / Area';
+
+    const proj = data.projects.find(p => p.id === projectId);
+    if (roomId && proj) {
+      const r = proj.rooms.find(x => x.id === roomId);
+      document.getElementById('rRoom').value   = r.room || '';
+      document.getElementById('rColor').value  = r.color || '';
+      document.getElementById('rColorHex').value = r.colorHex || '#F5F0E8';
+      document.getElementById('rNumber').value = r.number || '';
+      document.getElementById('rBrand').value  = r.brand || '';
+      document.getElementById('rFinish').value = r.finish || '';
+      document.getElementById('rYear').value   = r.year || '';
+    } else {
+      document.getElementById('rRoom').value   = '';
+      document.getElementById('rColor').value  = '';
+      document.getElementById('rColorHex').value = '#F5F0E8';
+      document.getElementById('rNumber').value = '';
+      document.getElementById('rBrand').value  = '';
+      document.getElementById('rFinish').value = '';
+      document.getElementById('rYear').value   = proj ? (proj.year || new Date().getFullYear()) : new Date().getFullYear();
+    }
+    document.getElementById('roomModal').classList.add('active');
+    setTimeout(() => document.getElementById('rRoom').focus(), 100);
+  }
+
+  function saveRoom() {
+    const room    = document.getElementById('rRoom').value.trim();
+    const color   = document.getElementById('rColor').value.trim();
+    const colorHex= document.getElementById('rColorHex').value;
+    const number  = document.getElementById('rNumber').value.trim();
+    const brand   = document.getElementById('rBrand').value.trim();
+    const finish  = document.getElementById('rFinish').value;
+    const year    = document.getElementById('rYear').value;
+
+    if (!room) { alert('Room name is required.'); return; }
+
+    const proj = data.projects.find(p => p.id === activeProjectId);
+    if (!proj) return;
+
+    if (editingRoomId) {
+      const r = proj.rooms.find(x => x.id === editingRoomId);
+      Object.assign(r, { room, color, colorHex, number, brand, finish, year });
+      toast('Entry updated.');
+    } else {
+      proj.rooms.push({ id: uid(), room, color, colorHex, number, brand, finish, year });
+      toast('Room added.');
+    }
+    save(); render();
+    closeModal('roomModal');
+  }
+
+  function deleteRoom(projectId, roomId) {
+    if (!confirm('Delete this room entry?')) return;
+    const proj = data.projects.find(p => p.id === projectId);
+    proj.rooms = proj.rooms.filter(r => r.id !== roomId);
+    save(); render();
+    toast('Entry deleted.');
+  }
+
+  // ── MODAL HELPERS ─────────────────────────────────────────────────────
+  function closeModal(id) {
+    document.getElementById(id).classList.remove('active');
+  }
+
+  document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', e => {
+      if (e.target === overlay) overlay.classList.remove('active');
+    });
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.modal-overlay.active').forEach(m => m.classList.remove('active'));
+    }
+  });
+
+  // ── INIT ──────────────────────────────────────────────────────────────
+  render();
+</script>
+</body>
+</html>
